@@ -9,6 +9,7 @@ Listado de preguntas:
 						[<%= quizes[i].tema %>] Pregunta: <%= quizes[i].pregunta %>
 					</a>
 				</td>
+				<% if (session.user) { %>
 				<td>
 					<a href="quizes/<%= quizes[i].id %>/edit">
 						<button>editar</button>
@@ -21,6 +22,7 @@ Listado de preguntas:
 						</button>
 					</form>
 				</td>
+				<% } %>
 			</tr>
 		<%	} %>
 	</table>
@@ -28,9 +30,11 @@ Listado de preguntas:
 	<p> Búsqueda sin resultados </p>
 <% } %>
 </div>
+<% if (session.user) { %>
 <div>
 	<a href="/quizes/new"><button type="button">Crear pregunta</button></a>
 </div>
+<%	} %>
 <div>
 <form>
 	<p>Buscar preguntas:</p>
