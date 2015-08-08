@@ -1,4 +1,5 @@
 var models = require('../models/models.js');
+var Sequelize = require('sequelize');
 
 // GET /quizes/:id
 exports.load = function (req, res, next, quizId){
@@ -119,4 +120,31 @@ exports.destroy = function(req, res) {
 // GET /author
 exports.author = function (req,res){
 	res.render('author',{quiz: req.quiz, errors: []});
+};
+
+// GET /statistics
+exports.statistics = function (req,res){
+	var sts = {
+		preguntas: 0,
+		comentarios: 0,
+		media_comentarios: 0,
+		preguntas_sin_comentarios: 0,
+		preguntas_con_comentarios: 0
+	};
+
+	Sequelize.Promise.all([
+		models.Quiz.count(),
+		models.Comment.count(),
+		models.Quiz.findAll({ include: [{model: models.Comment, required: true}]}),
+		])
+	.then(function (dataQuerys){
+		sts.preguntas = dataQuerys[0];
+		sts.comentarios = dataQuerys[1];
+		sts.media_comentarios = sts.comentarios / sts.preguntas;
+		sts.preguntas_con_comentarios = dataQuerys[2].length;
+		sts.preguntas_sin_comentarios = sts.preguntas - sts.preguntas_con_comentarios;
+	})
+	.finally(function (){
+		res.render('quizes/statistics',{quiz: req.quiz, sts: sts, errors: []});	
+	});
 };

@@ -8,6 +8,9 @@ var routes = require('./routes/index');
 var partials = require('express-partials');
 var methodOverride = require('method-override');
 var session = require('express-session');
+var lastRequestDate = null;
+
+var SECONDS_TIMEOUT = 120;
 
 var app = express();
 
@@ -34,6 +37,27 @@ app.use(function(req, res, next){
 
     // Hacer visible req.session en las vistas
     res.locals.session = req.session;
+    next();
+});
+
+app.use(function(req,res,next){
+    if (req.session.user) {
+        var d = new Date();
+        if (lastRequestDate){
+            diff = ((d - lastRequestDate)/1000);
+            if (diff >= SECONDS_TIMEOUT){
+                console.log("Diferencia entre lastRequest y actual por encima de 2 minutos ["+ diff +" segundos], se procede a logout");
+                delete req.session.user
+                lastRequestDate = null
+            } else {
+                console.log("Diferencia entre lastRequest y actual por debajo de 2 minutos [" + diff + " segundos]");
+                lastRequestDate = d;    
+            }
+            
+        } else {
+            lastRequestDate = d;
+        }        
+    }
     next();
 });
 

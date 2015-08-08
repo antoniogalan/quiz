@@ -31,6 +31,7 @@ exports.create = function(req, res) {
 			return;
 		}
 
+		console.log("Creamos nuevo usuario" + req.session.user)
 		req.session.user = {id: user.id, username: user.username};
 
 		res.redirect(req.session.redir.toString());
